@@ -1,2 +1,50 @@
 #!/bin/bash
 
+##
+##  Automate configuration script.
+##  
+##  Author: Kim Leo <kenpusney@gmail.com>
+##  http://github.com/kenpusney
+##
+
+##
+## eval_rec : Evaluate the script files in `dir` recursively.
+## @usage : eval_rec <dir>
+##
+function eval_rec {
+    cd $1;
+    for file in `ls`;
+    do
+        [ -d $file ] && eval_rec $file;
+        if [ -f $file ] 
+        then
+            #By `file` command detected type.
+            case `file $file` in
+                *"shell script"* ) source $file ;;
+                *"perl script"* ) perl $file ;;
+                *"awk script"* ) awk -f $file ;;
+                *"python script"* ) python $file ;;
+                * )
+                    #By file extension.
+                    case $file in
+                        *.sh ) bash $file ;;
+                        *.pl ) perl $file ;;
+                        *.py ) python $file ;;
+                        * ) 
+                        case `head -1 $file` in
+                            *"/bash" ) bash $file ;;
+                            *"/sh"  ) sh $file ;;
+                            *"/perl" ) perl $file ;;
+                            *"/python") python $file ;;
+                        esac ;;
+                    esac ;;
+            esac;
+        fi;
+    done;
+    cd ..;
+}
+
+## Evaluations:
+eval_rec scripts
+
+
