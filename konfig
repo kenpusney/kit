@@ -11,7 +11,16 @@
 ## eval_rec : Evaluate the script files in `dir` recursively.
 ## @usage : eval_rec <dir>
 ##
+
+error() {
+    printf "$1\n\n" 
+    printf "See \`konfig --help\` for more information.\n"
+    exit $2 || 1;
+}
+
+
 eval_rec() {
+    echo "IN $1 :"
     cd $1
     for file in `ls`
     do
@@ -21,7 +30,12 @@ eval_rec() {
     cd ..
 }
 
+##
+## eval_script : Evaluate the script file.
+## @usage : eval_script <script>
+##
 eval_script() {
+    echo "    EXEC $1 ..."
     #By `file` command detected type.
     case `file $1` in
         *"shell script"* ) source $1 ;;
@@ -35,53 +49,111 @@ eval_script() {
                 *.pl ) perl $1 ;;
                 *.py ) python $1 ;;
                 * ) 
+                #By she-bang.
                     case `head -1 $1` in
                         *"bash" ) bash $1 ;;
                         *"sh"  ) sh $1 ;;
                         *"perl" ) perl $1 ;;
                         *"python") python $1 ;;
+                        * ) error "[Error] Cannot recorgnize the file $1!";
                     esac ;;
             esac ;;
     esac
     
 }
 
+##
+## konf_exec : Execute a list of files(alone or in `scripts`).
+## @usage : konf_exec <file list>
+##
 konf_exec() {
     for file in $@
     do
         if [ -f $file ]
         then
             eval_script $file
+            break
         elif [ -f "scripts/$file" ]
         then 
             eval_script "scripts/$file"
+            break
         else
-            echo "[Error]Unknow Scripts: $file."
-            exit 1
+            error "[Error] Unknow Scripts: $file."
         fi
     done
 }
 
+
+##
+## conf_cover : Cover configuration files to local.
+## @usage : conf_cover <files>
+##
+conf_cover() {
+    for cfg in $@
+    do
+        case $cfg in
+            "all" )
+                echo "Covering all configurations, please wait ..."
+                sed -n 's/[^:]*:\([^:]*\):\([^:]*\)/cp -rf \2 \1/p' konf.lst | bash 
+                echo "done!" ;;
+            * ) 
+                #exprs="s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\2 \\1/p"
+                echo "Cover $cfg configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
+                sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\2 \\1/p" konf.lst | bash 
+                echo "done!" ;;
+        esac
+    done
+}
+
+##
+## conf_insert : Insert a new configuration item into konf.lst.
+## @usage : conf_insert <name> <local_path> <file>
+##
+conf_insert(){
+    [ -f $2 ] || error "[Error] Cannot found $2."
+    [ -e $3 ] && error "[Error] $3 already exists."
+    echo "Copying files ..."
+    cp -rf $2 $3
+    echo "Appending records ..."
+    [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
+    [ -e $3 ] && echo "$1 has inserted to conf. "
+}
 case $1 in
-    ## Evaluations:
+    ## Execution.
     "exec" ) 
         shift
+        ## `konfig exec`
         [ $# -eq 0 ] && eval_rec scripts 
         [ $# -gt 0 ] && case $1 in 
+                ## `konfig exec all`
                 all ) eval_rec scripts ;;
+                ## `konfig exec <files>`
                 * ) konf_exec $@ ;;
             esac ;;
     ## Cover Configuration files.
     "conf" ) 
         shift
-        cd ./conf/
-        
+        cd conf
+        [ $# -eq 0 ] && conf_cover "all"
+        [ $# -gt 0 ] && case $1 in
+                all | "*" )  
+                    conf_cover "all" ;;
+                insert ) 
+                    shift
+                    conf_insert $@ ;;
+                * ) conf_cover $@ ;;
+            esac
+        cd ..
         ;;
     ## Backup Configuration files.
-    "backup" )  ;;
-        cd ./conf/
-    * ) echo "[Errror]Unknown command." 
-        exit 1 ;;
+    "backup" )  
+        shift
+        cd conf
+            
+        cd ..
+        ;;
+    * ) error "[Error] Unknown command." 
 esac
 
 

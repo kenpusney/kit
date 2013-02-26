@@ -1,4 +1,3 @@
-.vimrc      ~/.vimrc            .vimrc
-hostname    /etc/hostname       hostname
-hosts       /etc/hosts          hosts
-
+.vimrc:~/.vimrc:.vimrc
+hostname:/etc/hostname:hostname
+hosts:/etc/hosts:hosts
