@@ -16,47 +16,73 @@ eval_rec() {
     for file in `ls`
     do
         [ -d $file ] && eval_rec $file
-        if [ -f $file ] 
-        then
-            #By `file` command detected type.
-            case `file $file` in
-                *"shell script"* ) source $file ;;
-                *"perl script"* ) perl $file ;;
-                *"awk script"* ) awk -f $file ;;
-                *"python script"* ) python $file ;;
-                * )
-                    #By file extension.
-                    case $file in
-                        *.sh ) bash $file ;;
-                        *.pl ) perl $file ;;
-                        *.py ) python $file ;;
-                        * ) 
-                        case `head -1 $file` in
-                            *"bash" ) bash $file ;;
-                            *"sh"  ) sh $file ;;
-                            *"perl" ) perl $file ;;
-                            *"python") python $file ;;
-                        esac ;;
-                    esac ;;
-            esac
-        fi
+        [ -f $file ] && eval_script $file
     done
     cd ..
 }
 
+eval_script() {
+    #By `file` command detected type.
+    case `file $1` in
+        *"shell script"* ) source $1 ;;
+        *"perl script"* ) perl $1 ;;
+        *"awk script"* ) awk -f $1 ;;
+        *"python script"* ) python $1 ;;
+        * )
+        #By file extension.
+            case $1 in
+                *.sh ) bash $1 ;;
+                *.pl ) perl $1 ;;
+                *.py ) python $1 ;;
+                * ) 
+                    case `head -1 $1` in
+                        *"bash" ) bash $1 ;;
+                        *"sh"  ) sh $1 ;;
+                        *"perl" ) perl $1 ;;
+                        *"python") python $1 ;;
+                    esac ;;
+            esac ;;
+    esac
+    
+}
+
+konf_exec() {
+    for file in $@
+    do
+        if [ -f $file ]
+        then
+            eval_script $file
+        elif [ -f "scripts/$file" ]
+        then 
+            eval_script "scripts/$file"
+        else
+            echo "[Error]Unknow Scripts: $file."
+            exit 1
+        fi
+    done
+}
 
 case $1 in
     ## Evaluations:
-    "exec" ) eval_rec scripts ;;
+    "exec" ) 
+        shift
+        [ $# -eq 0 ] && eval_rec scripts 
+        [ $# -gt 0 ] && case $1 in 
+                all ) eval_rec scripts ;;
+                * ) konf_exec $@ ;;
+            esac ;;
     ## Cover Configuration files.
-    "conf" ) cp -rf ./~conf/* ~/ ;;
+    "conf" ) 
+        shift
+        cd ./conf/
+        
+        ;;
     ## Backup Configuration files.
     "backup" )  ;;
-    
-    * ) echo Unknown command! ;;
+        cd ./conf/
+    * ) echo "[Errror]Unknown command." 
+        exit 1 ;;
 esac
-
-
 
 
 
