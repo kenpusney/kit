@@ -11,11 +11,11 @@
 ## eval_rec : Evaluate the script files in `dir` recursively.
 ## @usage : eval_rec <dir>
 ##
-function eval_rec {
-    cd $1;
-    for file in `ls`;
+eval_rec() {
+    cd $1
+    for file in `ls`
     do
-        [ -d $file ] && eval_rec $file;
+        [ -d $file ] && eval_rec $file
         if [ -f $file ] 
         then
             #By `file` command detected type.
@@ -32,19 +32,33 @@ function eval_rec {
                         *.py ) python $file ;;
                         * ) 
                         case `head -1 $file` in
-                            *"/bash" ) bash $file ;;
-                            *"/sh"  ) sh $file ;;
-                            *"/perl" ) perl $file ;;
-                            *"/python") python $file ;;
+                            *"bash" ) bash $file ;;
+                            *"sh"  ) sh $file ;;
+                            *"perl" ) perl $file ;;
+                            *"python") python $file ;;
                         esac ;;
                     esac ;;
-            esac;
-        fi;
-    done;
-    cd ..;
+            esac
+        fi
+    done
+    cd ..
 }
 
-## Evaluations:
-eval_rec scripts
+
+case $1 in
+    ## Evaluations:
+    "exec" ) eval_rec scripts ;;
+    ## Cover Configuration files.
+    "conf" ) cp -rf ./~conf/* ~/ ;;
+    ## Backup Configuration files.
+    "backup" )  ;;
+    
+    * ) echo Unknown command! ;;
+esac
+
+
+
+
+
 
 
