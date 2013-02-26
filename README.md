@@ -1,5 +1,8 @@
 # Kim's Configurations Collection.
 
-## Usage
+### Usage
 
-    ./autoconf  #not the "GNU Autoconf" command.
+    ./konfig <conf|exec|backup>
+
+===============
+
