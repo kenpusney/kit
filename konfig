@@ -119,6 +119,10 @@ conf_insert(){
     [ -e $3 ] && echo "$1 has inserted to conf. "
 }
 
+##
+## conf_backup : Backup conf from local to konfig.
+## @usage : conf_backup <files>
+##
 conf_backup() {
     for cfg in $@
     do
@@ -137,6 +141,10 @@ conf_backup() {
     done
 }
 
+##
+## conf_remove : Remove conf form konfig.
+## @usage : conf_remove <files>
+##
 conf_remove() {
     for cfg in $@
     do
@@ -150,15 +158,22 @@ conf_remove() {
                 echo "done!"
                 ;;
             * )
-                ## FIXME : Update the konf.lst
                 echo "Removing $cfg configuration ..."
                 [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/rm -rf \\2/p" konf.lst | bash
-                echo "`sed "/\$$cfg:\\([^:]*\\):\\([^:]*\\)^/d" konf.lst`" >> konf.lst
+                echo "`sed /$cfg.*/d konf.lst`" > konf.lst
                 echo "done!"
                 ;;
         esac
     done
+}
+
+##
+## list_conf : List configurations.
+## @usage : list_conf ["all"]
+##
+list_conf() {
+    awk -F: '{ print $1 }' konf.lst
 }
 
 
@@ -189,6 +204,7 @@ case $1 in
             esac
         cd ..
         ;;
+    ## Insertion.
     "insert" | "add" ) 
         shift
         cd conf
@@ -196,7 +212,7 @@ case $1 in
         [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
         conf_insert $@ 
         cd .. ;;
-    ## TODO:Backup Configuration files.
+    ## Backup.
     "backup" )  
         shift
         cd conf
@@ -208,6 +224,7 @@ case $1 in
             esac
         cd ..
         ;;
+    ## Remove.
     "remove" | "rm" )
         shift
         cd conf
@@ -215,10 +232,17 @@ case $1 in
         [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
         conf_remove $@
         cd .. ;;
+    ## Clear(Remove all).
     "clear" | "clr" )
         shift
         cd conf
         conf_remove "all"
+        cd ..
+        ;;
+    "list" | "ls" ) 
+        shift
+        cd conf
+        list_conf
         cd ..
         ;;
     * ) error "[Error] Unknown command." ;;
