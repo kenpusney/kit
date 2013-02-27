@@ -11,13 +11,16 @@
 ## Initialization scripts
 ##
 [ -d ~/.konfig ] || mkdir ~/.konfig
-[ -d ~/.konfig/scripts ] || mkdir ~/.konfig/scripts
-[ -d ~/.konfig/conf ] || mkdir ~/.konfig/conf
+cd ~/.konfig
+[ -d scripts ] || mkdir scripts
+[ -d conf ] || mkdir conf
+[ -f scripts/skripts.lst ] || touch scripts/skripts.lst
+[ -f conf/konf.lst ] || touch conf/konf.lst
 
 error() {
     printf "$1\n\n" 
     printf "See \`konfig --help\` for more information.\n"
-    exit $2 || 1;
+    exit 1;
 }
 
 
@@ -117,13 +120,12 @@ conf_cover() {
 ## @usage : conf_insert <name> <local_path> <file>
 ##
 conf_insert(){
+    
     [ -f $2 ] || error "[Error] Cannot found $2."
     [ -e $3 ] && error "[Error] $3 already exists."
-    echo "Copying files ..."
-    echo "`pwd`"
-    cp -rf $2 $3
-    echo "Appending records ..."
-    [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
+
+    echo "Copying files ..." && cp -rf $2 $3
+    echo "Appending records ..." && [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
     [ -e $3 ] && echo "$1 has inserted to conf. "
 }
 
@@ -142,7 +144,7 @@ conf_backup() {
             * ) 
                 #exprs="s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p"
                 echo "Backing-up $cfg configuration ..."
-                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\1/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg, try \`konfig recover\` "
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\1/p" konf.lst`" ] || error "[Error] Cannot found local $cfg, try \`konfig recover\` "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p" konf.lst | bash 
                 echo "done!" ;;
         esac
@@ -159,19 +161,15 @@ conf_remove() {
         case $1 in
             "all" )
                 echo "Removing all configurations ..."
-                cd ..
-                rm -rf conf
-                mkdir conf
-                cd conf
-                echo "done!"
-                ;;
+                cd .. && rm -rf conf
+                mkdir conf && cd conf && touch konf.lst
+                echo "done!"  ;;
             * )
                 echo "Removing $cfg configuration ..."
                 [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/rm -rf \\2/p" konf.lst | bash
                 echo "`sed /$cfg.*/d konf.lst`" > konf.lst
-                echo "done!"
-                ;;
+                echo "done!" ;;
         esac
     done
 }
@@ -181,80 +179,52 @@ conf_remove() {
 ## @usage : list_conf ["all"]
 ##
 list_conf() {
-    awk -F: '{ print $1 }' konf.lst
+    awk -F: '{ print $1,"\t\t\t",$2 }' konf.lst
 }
 
-
-cd ~/.konfig
-
 case $1 in
-    ## Execution.
     "exec" ) 
         shift
-        ## `konfig exec`
         [ $# -eq 0 ] && eval_rec scripts 
         [ $# -gt 0 ] && case $1 in 
-                ## `konfig exec all`
-                all ) eval_rec scripts ;;
-                ## `konfig exec <files>`
+                "all" ) eval_rec scripts ;;
                 * ) konf_exec $@ ;;
             esac ;;
-    ## Cover Configuration files.
-    "conf" | "recover" ) 
-        shift
-        cd conf
-        ## `konfig conf`
+     "recover" | "rec" ) 
+        shift && cd conf
         [ $# -eq 0 ] && conf_cover "all"
         [ $# -gt 0 ] && case $1 in
-                ## `konfig conf all`
-                "all" )  
-                    conf_cover "all" ;;
-                ## `konfig conf <conf>`
+                "all" ) conf_cover "all" ;;
                 * ) conf_cover $@ ;;
             esac
-        cd ..
-        ;;
-    ## Insertion.
-    "insert" | "add" ) 
-        shift
-        cd conf
-        ## `konfig insert <conf> <local> <file>`
-        [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
-        conf_insert $@ 
         cd .. ;;
-    ## Backup.
+    "insert" | "add" ) 
+        shift cd conf
+        [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
+        conf_insert $@ && cd .. ;;
     "backup" )  
-        shift
-        cd conf
+        shift && cd conf
         [ $# -eq 0 ] && conf_backup "all"
         [ $# -gt 0 ] && case $1 in 
-                "all" )   conf_backup "all" ;;
-                * )
-                    conf_backup $@ ;;
+                "all" ) conf_backup "all" ;;
+                * ) conf_backup $@ ;;
             esac
-        cd ..
-        ;;
-    ## Remove.
-    "remove" | "rm" )
-        shift
-        cd conf
-        ## `konfig remove <conf>`
-        [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
-        conf_remove $@
         cd .. ;;
-    ## Clear(Remove all).
+    "remove" | "rm" )
+        shift && cd conf
+        [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
+        conf_remove $@ && cd .. ;;
     "clear" | "clr" )
-        shift
-        cd conf
-        conf_remove "all"
-        cd ..
-        ;;
+        shift && cd conf 
+        conf_remove "all" && cd ..  ;;
     "list" | "ls" ) 
-        shift
-        cd conf
-        list_conf
-        cd ..
-        ;;
+        shift && cd conf 
+        list_conf && cd .. ;;
+    "put" ) ## TODO : implement.
+        shift && cd script 
+        
+        cd ..;;
+
     * ) error "[Error] Unknown command." ;;
 esac
 
