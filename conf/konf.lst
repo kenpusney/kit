@@ -1,3 +1,4 @@
-.vimrc:~/.vimrc:.vimrc
-hostname:/etc/hostname:hostname
+.vimrc:/home/kpsn/.vimrc:.vimrc
+hosts:/etc/hosts:hosts
+.vimrc:/home/kpsn/.vimrc:.vimrc
 hosts:/etc/hosts:hosts

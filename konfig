@@ -136,6 +136,32 @@ conf_backup() {
         esac
     done
 }
+
+conf_remove() {
+    for cfg in $@
+    do
+        case $1 in
+            "all" )
+                echo "Removing all configurations ..."
+                cd ..
+                rm -rf conf
+                mkdir conf
+                cd conf
+                echo "done!"
+                ;;
+            * )
+                ## FIXME : Update the konf.lst
+                echo "Removing $cfg configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
+                sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/rm -rf \\2/p" konf.lst | bash
+                echo "`sed "/\$$cfg:\\([^:]*\\):\\([^:]*\\)^/d" konf.lst`" >> konf.lst
+                echo "done!"
+                ;;
+        esac
+    done
+}
+
+
 case $1 in
     ## Execution.
     "exec" ) 
@@ -163,7 +189,7 @@ case $1 in
             esac
         cd ..
         ;;
-    "insert" ) 
+    "insert" | "add" ) 
         shift
         cd conf
         ## `konfig insert <conf> <local> <file>`
@@ -177,12 +203,25 @@ case $1 in
         [ $# -eq 0 ] && conf_backup "all"
         [ $# -gt 0 ] && case $1 in 
                 "all" )   conf_backup "all" ;;
-                * ) 
+                * )
                     conf_backup $@ ;;
             esac
         cd ..
         ;;
-    * ) error "[Error] Unknown command." 
+    "remove" | "rm" )
+        shift
+        cd conf
+        ## `konfig remove <conf>`
+        [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
+        conf_remove $@
+        cd .. ;;
+    "clear" | "clr" )
+        shift
+        cd conf
+        conf_remove "all"
+        cd ..
+        ;;
+    * ) error "[Error] Unknown command." ;;
 esac
 
 
