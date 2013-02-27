@@ -119,7 +119,23 @@ conf_insert(){
     [ -e $3 ] && echo "$1 has inserted to conf. "
 }
 
-
+conf_backup() {
+    for cfg in $@
+    do
+        case $cfg in
+            "all" )
+                echo "Backing-up all configurations, please wait ..."
+                sed -n 's/[^:]*:\([^:]*\):\([^:]*\)/cp -rf \1 \2/p' konf.lst | bash 
+                echo "done!" ;;
+            * ) 
+                #exprs="s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p"
+                echo "Backing-up $cfg configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\1/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg, try \`konfig recover\` "
+                sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p" konf.lst | bash 
+                echo "done!" ;;
+        esac
+    done
+}
 case $1 in
     ## Execution.
     "exec" ) 
@@ -133,7 +149,7 @@ case $1 in
                 * ) konf_exec $@ ;;
             esac ;;
     ## Cover Configuration files.
-    "conf" ) 
+    "conf" | "recover" ) 
         shift
         cd conf
         ## `konfig conf`
@@ -151,13 +167,19 @@ case $1 in
         shift
         cd conf
         ## `konfig insert <conf> <local> <file>`
-        conf_insert $@ ;;
-        cd ..
+        [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
+        conf_insert $@ 
+        cd .. ;;
     ## TODO:Backup Configuration files.
     "backup" )  
         shift
         cd conf
-            
+        [ $# -eq 0 ] && conf_backup "all"
+        [ $# -gt 0 ] && case $1 in 
+                "all" )   conf_backup "all" ;;
+                * ) 
+                    conf_backup $@ ;;
+            esac
         cd ..
         ;;
     * ) error "[Error] Unknown command." 
