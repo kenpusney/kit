@@ -5,19 +5,19 @@
 
     ./konfig <conf|exec|insert|backup>
 
-  * Execution.
+#### Execution.
 
     ./konfig exec [all | <script list>]
 
-  * Configuration.
+#### Configuration.
 
     ./konfig conf [all | <config list>]
 
-  * Insert new config.
+#### Insert new config.
 
     ./konfig insert <config> <local path> <filename>
 
-  * Backup configs.
+#### Backup configs.
 
     ./konfig backup [all |<config list>]
 
