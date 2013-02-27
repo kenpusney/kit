@@ -7,11 +7,6 @@
 ##  http://github.com/kenpusney
 ##
 
-##
-## eval_rec : Evaluate the script files in `dir` recursively.
-## @usage : eval_rec <dir>
-##
-
 error() {
     printf "$1\n\n" 
     printf "See \`konfig --help\` for more information.\n"
@@ -19,6 +14,10 @@ error() {
 }
 
 
+##
+## eval_rec : Evaluate the script files in `dir` recursively.
+## @usage : eval_rec <dir>
+##
 eval_rec() {
     echo "IN $1 :"
     cd $1
@@ -119,6 +118,8 @@ conf_insert(){
     [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
     [ -e $3 ] && echo "$1 has inserted to conf. "
 }
+
+
 case $1 in
     ## Execution.
     "exec" ) 
@@ -135,18 +136,24 @@ case $1 in
     "conf" ) 
         shift
         cd conf
+        ## `konfig conf`
         [ $# -eq 0 ] && conf_cover "all"
         [ $# -gt 0 ] && case $1 in
-                all | "*" )  
+                ## `konfig conf all`
+                "all" )  
                     conf_cover "all" ;;
-                insert ) 
-                    shift
-                    conf_insert $@ ;;
+                ## `konfig conf <conf>`
                 * ) conf_cover $@ ;;
             esac
         cd ..
         ;;
-    ## Backup Configuration files.
+    "insert" ) 
+        shift
+        cd conf
+        ## `konfig insert <conf> <local> <file>`
+        conf_insert $@ ;;
+        cd ..
+    ## TODO:Backup Configuration files.
     "backup" )  
         shift
         cd conf
@@ -155,8 +162,5 @@ case $1 in
         ;;
     * ) error "[Error] Unknown command." 
 esac
-
-
-
 
 
