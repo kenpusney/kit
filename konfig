@@ -7,6 +7,13 @@
 ##  http://github.com/kenpusney
 ##
 
+##
+## Initialization scripts
+##
+[ -d ~/.konfig ] || mkdir ~/.konfig
+[ -d ~/.konfig/scripts ] || mkdir ~/.konfig/scripts
+[ -d ~/.konfig/conf ] || mkdir ~/.konfig/conf
+
 error() {
     printf "$1\n\n" 
     printf "See \`konfig --help\` for more information.\n"
@@ -113,6 +120,7 @@ conf_insert(){
     [ -f $2 ] || error "[Error] Cannot found $2."
     [ -e $3 ] && error "[Error] $3 already exists."
     echo "Copying files ..."
+    echo "`pwd`"
     cp -rf $2 $3
     echo "Appending records ..."
     [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
@@ -176,6 +184,8 @@ list_conf() {
     awk -F: '{ print $1 }' konf.lst
 }
 
+
+cd ~/.konfig
 
 case $1 in
     ## Execution.
