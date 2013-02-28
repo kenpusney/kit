@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-get_konf(){
-    rm -rf konfig && curl https://raw.github.com/kenpusney/konfigurations/master/konfig > konfig
+get_konf(){ 
+    echo "Get current developing version ..." && curl https://raw.github.com/kenpusney/konfigurations/master/konfig > konfig
+    echo "Success!"
 }
 
 inst_konf(){
@@ -12,7 +13,8 @@ inst_konf(){
         echo "Remove old version ..."
         rm -rf /usr/bin/konfig
     fi
-    ln -s /usr/lib/kit/konfig /usr/bin/konfig 
+    echo "Creat executable command ..." && ln -s /usr/lib/kit/konfig /usr/bin/konfig
+    echo "Success!"
 }
 
 [ $# -gt 0 ] && case $1 in
