@@ -182,6 +182,12 @@ list_conf() {
     awk -F: '{ print $1,"\t\t\t",$2 }' konf.lst
 }
 
+##
+## Main 
+##
+
+echo "[`date`]$@" >> .konfig_history
+
 case $1 in
     "exec" ) 
         shift
