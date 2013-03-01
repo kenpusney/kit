@@ -10,12 +10,16 @@
 ##
 ## Initialization scripts
 ##
+
+curdir="`pwd`"
 [ -d ~/.konfig ] || mkdir ~/.konfig
 cd ~/.konfig
 [ -d scripts ] || mkdir scripts
 [ -d conf ] || mkdir conf
-[ -f scripts/skripts.lst ] || touch scripts/skripts.lst
 [ -f conf/konf.lst ] || touch conf/konf.lst
+
+## TODO: Implement.
+[ -d plugins ] || mkdir plugins
 
 error() {
     printf "$1\n\n" 
@@ -44,31 +48,27 @@ eval_rec() {
 ## @usage : eval_script <script>
 ##
 eval_script() {
-    echo "    EXEC $1 ..."
-    #By `file` command detected type.
+    echo "    EXEC \`$1\` ..."
     case `file $1` in
         *"shell script"* ) source $1 ;;
         *"perl script"* ) perl $1 ;;
         *"awk script"* ) awk -f $1 ;;
         *"python script"* ) python $1 ;;
         * )
-        #By file extension.
             case $1 in
                 *.sh ) bash $1 ;;
                 *.pl ) perl $1 ;;
                 *.py ) python $1 ;;
                 * ) 
-                #By she-bang.
                     case `head -1 $1` in
                         *"bash" ) bash $1 ;;
                         *"sh"  ) sh $1 ;;
                         *"perl" ) perl $1 ;;
                         *"python") python $1 ;;
-                        * ) error "[Error] Cannot recorgnize the file $1!";
+                        * ) error "[Error] Cannot recorgnize the file \`$1\`!";
                     esac ;;
             esac ;;
     esac
-    
 }
 
 ##
@@ -87,17 +87,17 @@ konf_exec() {
             eval_script "scripts/$file"
             break
         else
-            error "[Error] Unknow Scripts: $file."
+            error "[Error] Unknow Scripts: \`$file\`."
         fi
     done
 }
 
 
 ##
-## conf_cover : Cover configuration files to local.
-## @usage : conf_cover <files>
+## cover_conf : Cover configuration files to local.
+## @usage : cover_conf <files>
 ##
-conf_cover() {
+cover_conf() {
     for cfg in $@
     do
         case $cfg in
@@ -107,8 +107,8 @@ conf_cover() {
                 echo "done!" ;;
             * ) 
                 #exprs="s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\2 \\1/p"
-                echo "Cover $cfg configuration ..."
-                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
+                echo "Cover \`$cfg\` configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: \`$cfg\`. "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\2 \\1/p" konf.lst | bash 
                 echo "done!" ;;
         esac
@@ -116,24 +116,24 @@ conf_cover() {
 }
 
 ##
-## conf_insert : Insert a new configuration item into konf.lst.
-## @usage : conf_insert <name> <local_path> <file>
+## insert_conf : Insert a new configuration item into konf.lst.
+## @usage : insert_conf <name> <local_path> <file>
 ##
-conf_insert(){
+insert_conf(){
     
-    [ -f $2 ] || error "[Error] Cannot found $2."
-    [ -e $3 ] && error "[Error] $3 already exists."
+    [ -f $2 ] || error "[Error] Cannot found \`$2\`."
+    [ -e $3 ] && error "[Error] \`$3\` already exists."
 
     echo "Copying files ..." && cp -rf $2 $3
     echo "Appending records ..." && [ -e $3 ] && echo "$1:$2:$3" >> konf.lst
-    [ -e $3 ] && echo "$1 has inserted to conf. "
+    [ -e $3 ] && echo "\`$1\` has inserted to conf. "
 }
 
 ##
-## conf_backup : Backup conf from local to konfig.
-## @usage : conf_backup <files>
+## backup_conf : Backup conf from local to konfig.
+## @usage : backup_conf <files>
 ##
-conf_backup() {
+backup_conf() {
     for cfg in $@
     do
         case $cfg in
@@ -143,8 +143,8 @@ conf_backup() {
                 echo "done!" ;;
             * ) 
                 #exprs="s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p"
-                echo "Backing-up $cfg configuration ..."
-                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\1/p" konf.lst`" ] || error "[Error] Cannot found local $cfg, try \`konfig recover\` "
+                echo "Backing-up \`$cfg\` configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\1/p" konf.lst`" ] || error "[Error] Cannot found local \`$cfg\`, try \`konfig recover\` "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/cp -rf \\1 \\2/p" konf.lst | bash 
                 echo "done!" ;;
         esac
@@ -152,10 +152,10 @@ conf_backup() {
 }
 
 ##
-## conf_remove : Remove conf form konfig.
-## @usage : conf_remove <files>
+## remove_conf : Remove conf form konfig.
+## @usage : remove_conf <files>
 ##
-conf_remove() {
+remove_conf() {
     for cfg in $@
     do
         case $1 in
@@ -165,8 +165,8 @@ conf_remove() {
                 mkdir conf && cd conf && touch konf.lst
                 echo "done!"  ;;
             * )
-                echo "Removing $cfg configuration ..."
-                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: $cfg. "
+                echo "Removing \`$cfg\` configuration ..."
+                [ -f "`sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/\\2/p" konf.lst`" ] || error "[Error] Cannot found conf: \`$cfg\`. "
                 sed -n "s/$cfg:\\([^:]*\\):\\([^:]*\\)/rm -rf \\2/p" konf.lst | bash
                 echo "`sed /$cfg.*/d konf.lst`" > konf.lst
                 echo "done!" ;;
@@ -183,11 +183,52 @@ list_conf() {
 }
 
 ##
+##
+##
+##
+put_script() {
+    [ $# -eq 0 ] && error "[Error] Must specify the script name!"
+    for script in $@
+    do
+        echo "Put $script in scripts folder ..."
+        if [ -f $script ]
+        then
+            cp -rf "$script" scripts
+        elif [ -f "$curdir/$script" ]
+        then
+            cp -rf "$curdir/$script" scripts
+        else
+            error "[Error] Cannot found the file: \`$script\` !"
+        fi
+    done
+}
+
+##
+##
+##
+##
+clean_script() {
+    cd scripts
+    [ $# -eq 0 ] && error "[Error] Must specify a script name!"
+    for script in $@
+    do
+        case $script  in
+            "all" )  
+                echo "Cleanning all scripts ..." && rm -rf *
+                echo "done!" && exit ;;
+            * )
+                echo "Cleanning the script \`$script\` ..."
+                [ -f $script ] && rm -rf $script 
+                [ -e $script ] || error "[Error] Cannot found \`$script\` ." 
+                ;;
+        esac
+    done
+    echo "done!"
+}
+##
 ## Main 
 ##
-
 echo "[`date`]$@" >> .konfig_history
-
 case $1 in
     "exec" ) 
         shift
@@ -198,39 +239,38 @@ case $1 in
             esac ;;
      "recover" | "rec" ) 
         shift && cd conf
-        [ $# -eq 0 ] && conf_cover "all"
+        [ $# -eq 0 ] && cover_conf "all"
         [ $# -gt 0 ] && case $1 in
-                "all" ) conf_cover "all" ;;
-                * ) conf_cover $@ ;;
+                "all" ) cover_conf "all" ;;
+                * ) cover_conf $@ ;;
             esac
         cd .. ;;
     "insert" | "add" ) 
         shift cd conf
         [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
-        conf_insert $@ && cd .. ;;
+        insert_conf $@ && cd .. ;;
     "backup" )  
         shift && cd conf
-        [ $# -eq 0 ] && conf_backup "all"
+        [ $# -eq 0 ] && backup_conf "all"
         [ $# -gt 0 ] && case $1 in 
-                "all" ) conf_backup "all" ;;
-                * ) conf_backup $@ ;;
+                "all" ) backup_conf "all" ;;
+                * ) backup_conf $@ ;;
             esac
         cd .. ;;
     "remove" | "rm" )
         shift && cd conf
         [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
-        conf_remove $@ && cd .. ;;
+        remove_conf $@ && cd .. ;;
     "clear" | "clr" )
         shift && cd conf 
-        conf_remove "all" && cd ..  ;;
+        remove_conf "all" && cd ..  ;;
     "list" | "ls" ) 
         shift && cd conf 
         list_conf && cd .. ;;
-    "put" ) ## TODO : implement.
-        shift && cd script 
-        
-        cd ..;;
-
+    "put" ) 
+        shift && put_script $@ ;;
+    "clean" )
+        shift && clean_script $@ ;;
     * ) error "[Error] Unknown command." ;;
 esac
 
