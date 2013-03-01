@@ -176,15 +176,15 @@ remove_conf() {
 
 ##
 ## list_conf : List configurations.
-## @usage : list_conf ["all"]
+## @usage : list_conf
 ##
 list_conf() {
     awk -F: '{ print $1,"\t\t\t",$2 }' konf.lst
 }
 
 ##
-##
-##
+## put_script : put the script file to scripts folder.
+## @usage : put_script <script files>
 ##
 put_script() {
     [ $# -eq 0 ] && error "[Error] Must specify the script name!"
@@ -204,8 +204,8 @@ put_script() {
 }
 
 ##
-##
-##
+## clean_script : clean the file of scirpts.
+## @usage : clean_script <script files> | "all"
 ##
 clean_script() {
     cd scripts
