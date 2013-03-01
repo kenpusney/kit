@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
 
 get_konf(){ 
-    echo "Get current developing version ..." && curl https://raw.github.com/kenpusney/konfigurations/master/konfig > konfig
+    echo "Get current developing version ..." && curl https://raw.github.com/kenpusney/kit/master/kit > kit
     echo "Success!"
 }
 
 inst_konf(){
-    [ -f ./konfig ] || get_konf
-    [ -d /usr/lib/kit ] || mkdir /usr/lib/kit &&  cp konfig /usr/lib/kit
-    if [ -e /usr/bin/konfig ]
+    [ -f ./kit ] || get_konf
+    [ -d /usr/lib/kit ] || mkdir /usr/lib/kit &&  cp kit /usr/lib/kit
+    if [ -e /usr/bin/kit ]
     then
         echo "Remove old version ..."
-        rm -rf /usr/bin/konfig
+        rm -rf /usr/bin/kit
     fi
-    echo "Creat executable command ..." && ln -s /usr/lib/kit/konfig /usr/bin/konfig
+    echo "Creat executable command ..." && ln -s /usr/lib/kit/kit /usr/bin/kit
     echo "Success!"
 }
 
 [ $# -gt 0 ] && case $1 in
     "uninstall" | "un" )
-        rm -rf /usr/bin/konfig && rm -rf /usr/lib/kit 
+        rm -rf /usr/bin/kit && rm -rf /usr/lib/kit 
         echo "Uninstall successfully!" && exit ;;
     "dev" ) 
-        get_konf && inst_konf && exit ;;
+        get_kit && inst_kit && exit ;;
     * )
         echo "Unknown command."
         exit 1;;
 esac
 
-inst_konf
+inst_kit
