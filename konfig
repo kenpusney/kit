@@ -20,7 +20,7 @@ cd ~/.konfig
 
 ## TODO: Implement.
 [ -d plugins ] || mkdir plugins
-
+[ -d libs ] || mkdir libs
 error() {
     printf "$1\n\n" 
     printf "See \`konfig --help\` for more information.\n"
@@ -225,6 +225,19 @@ clean_script() {
     done
     echo "done!"
 }
+
+load_lib(){
+    [ $# -ne 1 ] && error "[Error] Cannot load lib: \`$@\` ."
+    case $1 in
+        * ) 
+            if [ -f "libs/$1.sh" ]
+            then
+                . "libs/$1.sh"
+            else
+                error "[Error] Cannot load lib: \`$1\` ."
+            fi ;;
+    esac
+}
 ##
 ## Main 
 ##
@@ -271,7 +284,18 @@ case $1 in
         shift && put_script $@ ;;
     "clean" )
         shift && clean_script $@ ;;
-    * ) error "[Error] Unknown command." ;;
+    "hello" ) 
+        load_lib "hello"
+        hello
+        ;;
+    * ) 
+        if [ -e "plugins/$1.sh" ]
+        then
+            skpt=$1
+            shift && . "plugins/$skpt.sh"
+        else
+            error "[Error] Unknown command \`$1\`."
+        fi ;;
 esac
 
 
