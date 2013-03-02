@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-get_konf(){ 
+get_kit(){ 
     echo "Get current developing version ..." && curl https://raw.github.com/kenpusney/kit/master/kit > kit
     echo "Success!"
 }
 
-inst_konf(){
-    [ -f ./kit ] || get_konf
+inst_kit(){
+    [ -f ./kit ] || get_kit
     [ -d /usr/lib/kit ] || mkdir /usr/lib/kit &&  cp kit /usr/lib/kit
     if [ -e /usr/bin/kit ]
     then
