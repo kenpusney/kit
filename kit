@@ -12,18 +12,18 @@
 ##
 
 curdir="`pwd`"
-[ -d ~/.konfig ] || mkdir ~/.konfig
-cd ~/.konfig
+[ -d ~/.kit ] || mkdir ~/.kit
+cd ~/.kit
 [ -d scripts ] || mkdir scripts
-[ -d conf ] || mkdir conf
-[ -f conf/konf.lst ] || touch conf/konf.lst
+[ -d configs ] || mkdir configs
+[ -f configs/konf.lst ] || touch configs/konf.lst
 
 ## TODO: Implement.
 [ -d plugins ] || mkdir plugins
 [ -d libs ] || mkdir libs
 error() {
     printf "$1\n\n" 
-    printf "See \`konfig --help\` for more information.\n"
+    printf "See \`kit --help\` for more information.\n"
     exit 1;
 }
 
@@ -251,7 +251,7 @@ case $1 in
                 * ) konf_exec $@ ;;
             esac ;;
      "recover" | "rec" ) 
-        shift && cd conf
+        shift && cd configs
         [ $# -eq 0 ] && cover_conf "all"
         [ $# -gt 0 ] && case $1 in
                 "all" ) cover_conf "all" ;;
@@ -259,11 +259,11 @@ case $1 in
             esac
         cd .. ;;
     "insert" | "add" ) 
-        shift cd conf
+        shift cd configs
         [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
         insert_conf $@ && cd .. ;;
     "backup" )  
-        shift && cd conf
+        shift && cd configs
         [ $# -eq 0 ] && backup_conf "all"
         [ $# -gt 0 ] && case $1 in 
                 "all" ) backup_conf "all" ;;
@@ -271,28 +271,28 @@ case $1 in
             esac
         cd .. ;;
     "remove" | "rm" )
-        shift && cd conf
+        shift && cd configs
         [ $# -lt 1 ] && error "[Error] Wrong number of arguments: must more than 0."
         remove_conf $@ && cd .. ;;
     "clear" | "clr" )
-        shift && cd conf 
+        shift && cd configs 
         remove_conf "all" && cd ..  ;;
     "list" | "ls" ) 
-        shift && cd conf 
+        shift && cd configs 
         list_conf && cd .. ;;
     "put" ) 
         shift && put_script $@ ;;
     "clean" )
         shift && clean_script $@ ;;
-    "hello" ) 
-        load_lib "hello"
-        hello
-        ;;
+    #"hello" ) 
+    #    load_lib "hello"
+    #    hello
+    #    ;;
     * ) 
         if [ -e "plugins/$1.sh" ]
         then
-            skpt=$1
-            shift && . "plugins/$skpt.sh"
+            plgn=$1
+            shift && . "plugins/$plgn.sh"
         else
             error "[Error] Unknown command \`$1\`."
         fi ;;
