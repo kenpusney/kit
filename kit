@@ -12,8 +12,11 @@
 ##
 
 curdir="`pwd`"
+basedir="/usr/lib/kit"
+
 [ -d ~/.kit ] || mkdir ~/.kit
 cd ~/.kit
+workdir="~/.kit"
 [ -d scripts ] || mkdir scripts
 [ -d configs ] || mkdir configs
 [ -f configs/konf.lst ] || touch configs/konf.lst
@@ -27,6 +30,13 @@ error() {
     exit 1;
 }
 
+##
+## kit_init : init `kit` program.
+## @usage : kit_init
+##
+kit_init(){
+    [ -e "kit.cfg" ] || fetch_lib "net" "std" "string"
+}
 
 ##
 ## eval_rec : Evaluate the script files in `dir` recursively.
@@ -72,10 +82,10 @@ eval_script() {
 }
 
 ##
-## konf_exec : Execute a list of files(alone or in `scripts`).
-## @usage : konf_exec <file list>
+## kit_exec : Execute a list of files(alone or in `scripts`).
+## @usage : kit_exec <file list>
 ##
-konf_exec() {
+kit_exec() {
     for file in $@
     do
         if [ -f $file ]
@@ -226,6 +236,25 @@ clean_script() {
     echo "done!"
 }
 
+
+##
+## fetch_lib : get `lib` from internet.
+## @usage : fetch_lib <libs>
+##
+fetch_lib(){
+## TODO : implement
+    [ -e kit.cfg ] && rm -rf kit.cfg
+    touch kit.cfg
+    for lib in $@
+    do
+        echo "Fetching \`$lib\` lib ..."
+    done
+}
+
+##
+## load_lib : load `lib` from libs folder.
+## @usage : load_lib <lib>
+##
 load_lib(){
     [ $# -ne 1 ] && error "[Error] Cannot load lib: \`$@\` ."
     case $1 in
@@ -238,17 +267,19 @@ load_lib(){
             fi ;;
     esac
 }
+
 ##
 ## Main 
 ##
-echo "[`date`]$@" >> .konfig_history
+kit_init
+echo "[`date`]$@" >> .kit_history
 case $1 in
     "exec" ) 
         shift
         [ $# -eq 0 ] && eval_rec scripts 
         [ $# -gt 0 ] && case $1 in 
                 "all" ) eval_rec scripts ;;
-                * ) konf_exec $@ ;;
+                * ) kit_exec $@ ;;
             esac ;;
      "recover" | "rec" ) 
         shift && cd configs
