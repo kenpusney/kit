@@ -5,41 +5,46 @@
 ```shell
 ./install.sh  ## or `sudo ./install` under ubuntu.
 ```
+## Uninstall
+```shell
+./install.sh un
+```
+
 ## Usage
 ```shell
-konfig <exec|recover|insert|list|backup|remove|clear|put>
+kit <exec|recover|insert|list|backup|remove|clear|put>
 ```
 #### Execution.
 ```shell
-konfig exec [all | <script list>]
+kit exec [all | <script list>]
 ```
 #### Configuration.
 ```shell
-konfig conf [all | <config list>]
+kit conf [all | <config list>]
 ```
 #### Insert new config.
 ```shell
-konfig insert <config> <local path> <filename>
-konfig add <config> <local path> <filename>
+kit insert <config> <local path> <filename>
+kit add <config> <local path> <filename>
 ```
 #### Backup configs.
 ```shell
-konfig backup [all | <config list>]
+kit backup [all | <config list>]
 ```
 #### Remove configs.
 
 ```shell
-konfig remove all | <config list>     #remove configs
-konfig rm all | <config list>         #remove configs
-konfig clear                          #clear all
+kit remove all | <config list>     #remove configs
+kit rm all | <config list>         #remove configs
+kit clear                          #clear all
 ```
 #### List configs.
 ```shell
-konfig list | ls
+kit list | ls
 ```
 #### Put scripts
 ```shell
-konfig put <script>
+kit put <script>
 ```
 
 ## Examples.
