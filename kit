@@ -35,7 +35,8 @@ error() {
 ## @usage : kit_init
 ##
 kit_init(){
-    [ -e "kit.cfg" ] || fetch_lib "net" "std" "string"
+    fetch_packages "libs" "net" "string"
+    fetch_packages "plugins" "hello"
 }
 
 ##
@@ -237,17 +238,33 @@ clean_script() {
 }
 
 
+github_raw(){
+    if [ -e github.cfg ] 
+    then
+        user=`sed -n "s/user=\\([^:]*\\)/\\1/p" github.cfg`
+        repo=`sed -n "s/repo=\\([^:]*\\)/\\1/p" github.cfg`
+        branch=`sed -n "s/branch=\\([^:]*\\)/\\1/p" github.cfg`
+    else
+        user="kenpusney"
+        repo="kit-packages"
+        branch="master"
+    fi
+    echo "https://raw.github.com/$user/$repo/$branch/"
+}
+
 ##
-## fetch_lib : get `lib` from internet.
-## @usage : fetch_lib <libs>
+## fetch_packages : get `lib` of `pack` from internet.
+## @usage : fetch_lib <pack> <libs>
 ##
-fetch_lib(){
+fetch_packages(){
 ## TODO : implement
-    [ -e kit.cfg ] && rm -rf kit.cfg
-    touch kit.cfg
+    gh_raw=`github_raw`
+    pack="$1" && shift
     for lib in $@
     do
-        echo "Fetching \`$lib\` lib ..."
+        echo "Fetching \`$lib\` $pack ..."
+        curl "$gh_raw/$pack/$lib.sh" > "libs/$lib"
+        [ $? -ne 0 ] && error "[Error] Fetching error: repo=$gh_raw && pack=$pack/$lib"
     done
 }
 
@@ -271,9 +288,10 @@ load_lib(){
 ##
 ## Main 
 ##
-kit_init
 echo "[`date`]$@" >> .kit_history
 case $1 in
+    "init" )
+        kit_init ;;
     "exec" ) 
         shift
         [ $# -eq 0 ] && eval_rec scripts 
@@ -315,6 +333,8 @@ case $1 in
         shift && put_script $@ ;;
     "clean" )
         shift && clean_script $@ ;;
+    "fetch" )
+        shift && fetch_packages $@;;
     #"hello" ) 
     #    load_lib "hello"
     #    hello
