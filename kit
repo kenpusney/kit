@@ -308,7 +308,7 @@ case $1 in
             esac
         cd .. ;;
     "insert" | "add" ) 
-        shift cd configs
+        shift && cd configs
         [ $# -ne 3 ] && error "[Error] Wrong number of arguments: 3 needed."
         insert_conf $@ && cd .. ;;
     "backup" )  

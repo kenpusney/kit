@@ -3,7 +3,8 @@
 
 ## Install
 ```shell
-./install.sh  ## or `sudo ./install` under ubuntu.
+./install.sh    ## or `sudo ./install` under ubuntu.
+kit init        ## init the kit system.
 ```
 ## Uninstall
 ```shell
@@ -46,7 +47,10 @@ kit list | ls
 ```shell
 kit put <script>
 ```
-
+#### Fetch packages.
+```shell
+kit fetch <pack> <packages>
+```
 ## Examples.
 
 
