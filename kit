@@ -40,21 +40,6 @@ kit_init(){
 }
 
 ##
-## eval_rec : Evaluate the script files in `dir` recursively.
-## @usage : eval_rec <dir>
-##
-eval_rec() {
-    echo "IN $1 :"
-    cd $1
-    for file in `ls`
-    do
-        [ -d $file ] && eval_rec $file
-        [ -f $file ] && eval_script $file
-    done
-    cd ..
-}
-
-##
 ## eval_script : Evaluate the script file.
 ## @usage : eval_script <script>
 ##
@@ -81,28 +66,6 @@ eval_script() {
             esac ;;
     esac
 }
-
-##
-## kit_exec : Execute a list of files(alone or in `scripts`).
-## @usage : kit_exec <file list>
-##
-kit_exec() {
-    for file in $@
-    do
-        if [ -f $file ]
-        then
-            eval_script $file
-            break
-        elif [ -f "scripts/$file" ]
-        then 
-            eval_script "scripts/$file"
-            break
-        else
-            error "[Error] Unknow Scripts: \`$file\`."
-        fi
-    done
-}
-
 
 ##
 ## cover_conf : Cover configuration files to local.
@@ -292,13 +255,6 @@ echo "[`date`]$@" >> .kit_history
 case $1 in
     "init" )
         kit_init ;;
-    "exec" ) 
-        shift
-        [ $# -eq 0 ] && eval_rec scripts 
-        [ $# -gt 0 ] && case $1 in 
-                "all" ) eval_rec scripts ;;
-                * ) kit_exec $@ ;;
-            esac ;;
      "recover" | "rec" ) 
         shift && cd configs
         [ $# -eq 0 ] && cover_conf "all"
