@@ -17,13 +17,11 @@ basedir="/usr/lib/kit"
 [ -d ~/.kit ] || mkdir ~/.kit
 cd ~/.kit
 workdir="~/.kit"
-[ -d scripts ] || mkdir scripts
 [ -d configs ] || mkdir configs
 [ -f configs/konf.lst ] || touch configs/konf.lst
 
-## TODO: Implement.
 [ -d plugins ] || mkdir plugins
-[ -d libs ] || mkdir libs
+[ -d lib ] || mkdir lib
 error() {
     printf "$1\n\n" 
     printf "See \`kit --help\` for more information.\n"
@@ -35,7 +33,7 @@ error() {
 ## @usage : kit_init
 ##
 kit_init(){
-    fetch_packages "libs" "net" "string"
+    fetch_packages "lib" "net" "string"
     fetch_packages "plugins" "hello" "conf"
 }
 
@@ -88,7 +86,7 @@ gh_raw(){
 
 ##
 ## fetch_packages : get `lib` of `pack` from internet.
-## @usage : fetch_lib <pack> <libs>
+## @usage : fetch_lib <pack> <lib>
 ##
 fetch_packages(){
 ## TODO : implement
@@ -97,24 +95,24 @@ fetch_packages(){
     for lib in $@
     do
         echo "Fetching \`$lib\` $pack ..."
-        curl "$url/$pack/$lib.sh" > "libs/$lib"
+        curl "$url/$pack/$lib.sh" > "lib/$lib"
         [ $? -ne 0 ] && error "[Error] Fetching error: repo=$url && pack=$pack/$lib"
     done
 }
 
 ##
-## load_lib : load `lib` from libs folder.
+## load_lib : load `lib` from lib folder.
 ## @usage : load_lib <lib>
 ##
 load_lib(){
     [ $# -ne 1 ] && error "[Error] Cannot load lib: \`$@\` ."
     case $1 in
         * ) 
-            if [ -f "libs/$1.sh" ]
+            if [ -f "lib/$1.sh" ]
             then
-                . "libs/$1.sh"
+                . "lib/$1.sh"
             else
-                error "[Error] Cannot load lib: \`$1\` ."
+                error "[Error] Cannot load lib: file \`$1\` ."
             fi ;;
     esac
 }
