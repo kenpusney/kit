@@ -37,34 +37,6 @@ kit_init(){
     fetch_packages "plugins" "hello" "conf"
 }
 
-##
-## eval_script : Evaluate the script file.
-## @usage : eval_script <script>
-##
-eval_script() {
-    echo "    EXEC \`$1\` ..."
-    case `file $1` in
-        *"shell script"* ) source $1 ;;
-        *"perl script"* ) perl $1 ;;
-        *"awk script"* ) awk -f $1 ;;
-        *"python script"* ) python $1 ;;
-        * )
-            case $1 in
-                *.sh ) bash $1 ;;
-                *.pl ) perl $1 ;;
-                *.py ) python $1 ;;
-                * ) 
-                    case `head -1 $1` in
-                        *"bash" ) bash $1 ;;
-                        *"sh"  ) sh $1 ;;
-                        *"perl" ) perl $1 ;;
-                        *"python") python $1 ;;
-                        * ) error "[Error] Cannot recorgnize the file \`$1\`!";
-                    esac ;;
-            esac ;;
-    esac
-}
-
 gh_raw(){
     if [ -e github.cfg ] 
     then
