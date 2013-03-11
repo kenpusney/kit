@@ -107,6 +107,10 @@ case $1 in
         then
             plgn=$1
             shift && . "plugins/$plgn.sh"
+        elif [ -e "plugins/$1.pl" ]
+        then
+            plgn=$1
+            shift && perl -Ilib plugins/$plgn.pl $@
         else
             error "[Error] Unknown command \`$1\`."
         fi ;;
