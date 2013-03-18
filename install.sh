@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 get_kit(){ 
-    echo "Get current developing version ..." && curl https://raw.github.com/kenpusney/kit/master/kit > kit
+    echo "Get current dev version ..." && curl https://raw.github.com/kenpusney/kit/master/kit > kit
     echo "Success!"
 }
 

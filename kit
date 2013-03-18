@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##
-##  Automate configuration script.
+##  tidy tools collection for general unix system.
 ##  
 ##  Author: Kim Leo <kenpusney@gmail.com>
 ##  http://github.com/kenpusney
@@ -105,12 +105,12 @@ case $1 in
     * ) 
         if [ -e "plugins/$1.sh" ]
         then
-            plgn=$1
-            shift && . "plugins/$plgn.sh"
+            PLG=$1
+            shift && . "plugins/$PLG.sh"
         elif [ -e "plugins/$1.pl" ]
         then
-            plgn=$1
-            shift && perl -Ilib plugins/$plgn.pl $@
+            PLG=$1
+            shift && perl -Ilib plugins/$PLG.pl $@
         else
             error "[Error] Unknown command \`$1\`."
         fi ;;
