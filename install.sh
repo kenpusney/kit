@@ -19,7 +19,7 @@ inst_kit(){
 
 [ $# -gt 0 ] && case $1 in
     "uninstall" | "un" )
-        rm -rf /usr/bin/kit && rm -rf /usr/lib/kit 
+        rm -rf /usr/bin/kit && rm -rf /usr/lib/kit && rm -rf ~/.kit
         echo "Uninstall successfully!" && exit ;;
     "dev" ) 
         get_kit && inst_kit && exit ;;

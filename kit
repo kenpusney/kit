@@ -11,13 +11,13 @@
 ## Initialization scripts
 ##
 
-curdir="`pwd`"
-basedir="/usr/lib/kit"
+export CURDIR="`pwd`"
+export BASEDIR="/usr/lib/kit"
+export WORDKIR="~/.kit"
+
 
 [ -d ~/.kit ] || mkdir ~/.kit
-cd ~/.kit
-workdir="~/.kit"
-[ -d configs ] || mkdir configs
+cd ~/.kit[ -d configs ] || mkdir configs
 [ -f configs/konf.lst ] || touch configs/konf.lst
 
 [ -d plugins ] || mkdir plugins
