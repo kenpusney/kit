@@ -17,7 +17,8 @@ export WORDKIR="~/.kit"
 
 
 [ -d ~/.kit ] || mkdir ~/.kit
-cd ~/.kit[ -d configs ] || mkdir configs
+cd ~/.kit
+[ -d configs ] || mkdir configs
 [ -f configs/konf.lst ] || touch configs/konf.lst
 
 [ -d plugins ] || mkdir plugins
@@ -103,13 +104,17 @@ case $1 in
     #    hello
     #    ;;
     * ) 
-        if [ -e "plugins/$1.sh" ]
+        if [ -e "plugins/$1" ]
         then
-            PLG=$1
+            export PLG=$1
+            shift && . "plugins/$PLG"
+        elif [ -e "plugins/$1.sh" ]
+        then
+            export PLG=$1
             shift && . "plugins/$PLG.sh"
         elif [ -e "plugins/$1.pl" ]
         then
-            PLG=$1
+            export PLG=$1
             shift && perl -Ilib plugins/$PLG.pl $@
         else
             error "[Error] Unknown command \`$1\`."
