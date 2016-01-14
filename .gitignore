@@ -1,1 +1,8 @@
 *.swp
+PUBKEY
+USERNAME
+INVENTORY
+.config/
+Vagrantfile
+.vagrant/
+.DS_Store

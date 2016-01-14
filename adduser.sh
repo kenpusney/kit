@@ -1,15 +1,14 @@
 
-USERNAME='<YOUR USERNAME>'
-PUBKEY='<YOUR PUBKEY>'
+USERNAME=`cat USERNAME`
+PUBKEY=`cat PUBKEY`
 
-adduser $USERNAME
+sudo adduser $USERNAME
 
-cat >> /etc/sudoers << __SUDOERS
+sudo cat >> /etc/sudoers << __SUDOERS
 ${USERNAME} ALL=(ALL) NOPASSWD: ALL
 __SUDOERS
 
-mkdir -p /home/$USERNAME/.ssh
-cat >> /home/$USERNAME/.ssh/authorized_keys << __PUBKEYS
+sudo mkdir -p /home/$USERNAME/.ssh
+sudo cat >> /home/$USERNAME/.ssh/authorized_keys << __PUBKEYS
 ${PUBKEY}
 __PUBKEYS
-
